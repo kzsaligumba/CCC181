@@ -1,0 +1,27 @@
+<!-- templates/index.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CHECKMATE</title>
+
+    <!-- Link to your CSS file -->
+    <link rel="stylesheet" href="static/index.css">
+</head>
+<body>
+    <div class = "application">
+        <button class="cta-button get-started-button" onclick="location.href='{{ url_for('login') }}'">
+            START
+        </button>
+        <button class="cta-button about-button" onclick="location.href='{{ url_for('about') }}'">
+            ABOUT
+        </button>
+
+        <button class="cta-button exit-button" onclick="location.href='{{ url_for('exit_app') }}'">
+            EXIT
+        </button>
+    </div>
+</body>
+</html>

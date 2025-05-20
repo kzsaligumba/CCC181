@@ -1,0 +1,100 @@
+/* static/styles.css */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: url('/static/bg1.png') no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+.application{
+
+}
+/* Styling for the buttons */
+.cta-button {
+    width: 20%;
+    height: 7.5%;
+    font-size: 20px;
+    margin: 10px;
+    cursor: pointer;
+    border: none;
+    border-radius: 25px;
+    transition: background-color 0.3s;
+}
+
+.get-started-button {
+    width: 20%;
+    height: 8%;
+    position: fixed;
+    left: 8%;
+    top: 70%;
+    font-size: 25px;
+    font-weight: 550;
+    margin: 10px;
+    cursor: pointer;
+    border: none;
+    border-radius: 40px;
+    background-color: #8c1111;
+    background-image:url('arrow1.png');
+    background-repeat: no-repeat, no-repeat;
+    background-size: 16%;
+    background-position: 85%;
+    color: #FFFFFF;
+    transition:#6b0d0d 0.3s;
+    padding-left: 0px;
+    padding-right: 70px;
+
+}
+
+.get-started-button:hover {
+    background-color: #b02221;
+}
+
+.about-button {
+    width: 10%;
+    height: 8%;
+    position: fixed;
+    right: 12.5%;
+    top: 9%;
+    font-size: 20px;
+    font-weight: 550;
+    margin: 10px;
+    cursor: pointer;
+    border: none;
+    border-radius: 40px;
+    background-color: #8c1111;
+    color: #FFFFFF;
+    transition:#6b0d0d 0.3s;
+}
+
+.about-button:hover {
+    background-color: #b02221;
+}
+
+.exit-button {
+    width: 10%;
+    height: 8%;
+    position: fixed;
+    right: 2%;
+    top: 9%;
+    font-size: 20px;
+    font-weight: 550;
+    margin: 10px;
+    cursor: pointer;
+    border: none;
+    border-radius: 40px;
+    background-color: #8c1111;
+    color: #FFFFFF;
+    transition:#6b0d0d 0.3s;
+}
+
+.exit-button:hover {
+    background-color: #b02221;
+}

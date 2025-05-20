@@ -1,0 +1,637 @@
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+  }
+  
+  body {
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: url('/static/bg8.png') no-repeat;
+    background-size: cover;
+    background-position: center;
+  }
+  .wrapper{
+    height: 100%;
+    width: 300px;
+    position: relative;
+    z-index: 2;
+  }
+  .wrapper .menu-btn{
+    position: absolute;
+    left: 20px;
+    top: 10px;
+    background: #650c0c;
+    color: #fff;
+    height: 45px;
+    width: 45px;
+    z-index: 9999;
+    border: 1px solid #f9ae42;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+  }
+  #btn:checked ~ .menu-btn{
+    left: 247px;
+  }
+  .wrapper .menu-btn i{
+    position: absolute;
+    transform: ;
+    font-size: 23px;
+    transition: all 0.3s ease;
+  }
+  
+  .checmate {
+      position: relative;
+      top: 55%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+  }
+  
+  .checmate img {
+      width: 30px;
+      height: 30px;
+  }
+  
+  #sidebar{
+    position: fixed;
+    background: #8c1111;
+    height: 100%;
+    width: 270px;
+    overflow: hidden;
+    left: -270px;
+    transition: all 0.3s ease;
+  }
+  #btn:checked ~ #sidebar{
+    left: 0;
+  }
+  #sidebar .title{
+    line-height: 65px;
+    text-align: center;
+    background: #650c0c;
+    font-size: 25px;
+    font-weight: 600;
+    color: #f2f2f2;
+    border-bottom: 1px solid #6b0d0d;
+  }
+  #sidebar .list-items{
+    position: relative;
+    background: #8c1111;
+    width: 100%;
+    height: 100%;
+    list-style: none;
+  }
+  #sidebar .list-items li{
+    padding-left: 40px;
+    line-height: 50px;
+    border-top: 1px solid #b12121;
+    border-bottom: 1px solid #b12121;
+    transition: all 0.3s ease;
+    
+  }
+  #sidebar .list-items li:hover{
+    border-top: 1px solid transparent;
+    border-bottom: 1px solid transparent;
+    box-shadow: 0 0px 10px 3px #f9ae42;
+  }
+  #sidebar .list-items li:first-child{
+    border-top: none;
+  }
+  #sidebar .list-items li a{
+    color: #f2f2f2;
+    text-decoration: none;
+    font-size: 18px;
+    font-weight: 500;
+    height: 100%;
+    width: 100%;
+    display: block;
+  }
+  #sidebar .list-items li a i{
+    margin-right: 20px;
+  }
+  #sidebar .list-items .icons{
+    width: 100%;
+    height: 40px;
+    text-align: center;
+    position: absolute;
+    bottom: 100px;
+    line-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #sidebar .list-items .icons a{
+    height: 100%;
+    width: 40px;
+    display: block;
+    margin: 0 5px;
+    font-size: 18px;
+    color: #f2f2f2;
+    background: #4a4a4a;
+    border-radius: 5px;
+    border: 1px solid #383838;
+    transition: all 0.3s ease;
+  }
+  #sidebar .list-items .icons a:hover{
+    background: #404040;
+  }
+  .list-items .icons a:first-child{
+    margin-left: 0px;
+  }
+
+.searchbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.searchbar .searchbar-input-box{
+    width: 32%;
+    height: 8%;
+    position: fixed;
+    left: 14%;
+    top: 20%;
+    z-index: 1;
+}
+.searchbar-input-box input{
+    width: 100%;
+    height: 100%;
+    background: #b02221;
+    border: none;
+    outline: none;
+    border-radius: 50px;
+    font-size: 20px;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #FFFFFF;
+    padding-left: 30px;
+}
+  
+.searchbar-input-box input::placeholder{
+    color: #FFFFFF;
+    opacity: 70%;
+}
+
+.cta-button {
+    width: 20%;
+    height: 7.5%;
+    font-size: 20px;
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 10px;
+    cursor: pointer;
+    border: none;
+    border-radius: 25px;
+    transition: background-color 0.3s;
+}
+
+.searchbar-button {
+    width: 10%;
+    height: 8%;
+    position: fixed;
+    left: 46.5%;
+    top: 19%;
+    font-size: 18px;
+    font-family: Arial, Helvetica, sans-serif;
+    cursor: pointer;
+    border: none;
+    border-radius: 40px;
+    background-color: #650c0c;
+    color: #FFFFFF;
+    transition:#b12121 0.3s;
+}
+
+.searchbar-button:hover {
+    background-color: #b12121;
+}
+
+.create-button {
+  width: 12.5%;
+  height: 6%;
+  position: fixed;
+  left: 62%;
+  top: 78%;
+  font-size: 18px;
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 10px;
+  cursor: pointer;
+  border: none;
+  border-radius: 40px;
+  background-color: #650c0c;
+  color: #FFFFFF;
+  transition:#b12121 0.3s;
+}
+
+.create-button:hover {
+  background-color: #b12121;
+}
+.update-button {
+  width: 12.5%;
+  height: 6%;
+  position: fixed;
+  left: 76%;
+  top: 78%;
+  font-size: 18px;
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 10px;
+  cursor: pointer;
+  border: none;
+  border-radius: 40px;
+  background-color: #650c0c;
+  color: #FFFFFF;
+  transition:#b12121 0.3s;
+}
+.update-button:hover {
+  background-color: #b12121;
+}
+
+.delete-button {
+  width: 12.5%;
+  height: 6%;
+  position: fixed;
+  left: 62%;
+  top: 84.5%;
+  font-size: 18px;
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 10px;
+  cursor: pointer;
+  border: none;
+  border-radius: 40px;
+  background-color: #650c0c;
+  color: #FFFFFF;
+  transition:#b12121 0.3s;
+}
+.delete-button:hover {
+  background-color: #b12121;
+}
+.clear-button {
+  width: 12.5%;
+  height: 6%;
+  position: fixed;
+  left: 76%;
+  top: 84.5%;
+  font-size: 18px;
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 10px;
+  cursor: pointer;
+  border: none;
+  border-radius: 40px;
+  background-color: #650c0c;
+  color: #FFFFFF;
+  transition:#b12121 0.3s;
+}
+.clear-button:hover {
+  background-color: #b12121;
+}
+
+.student_id {
+  text-align: center;
+  font-size: 25px;
+  font-family: Arial, Helvetica, sans-serif;
+  color:#FFFFFF;
+  position: fixed;
+  right: 19%;
+  bottom: 10%;
+  font-weight: lighter;
+}
+
+.student_id span{
+  color: #FFFFFF;
+  text-decoration: none;
+  font-weight: bold;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 22px;
+  position: fixed;
+  top: 29%;
+  left: 59%;
+}
+
+.student_id .student_id-input-box {
+  width: 22%;
+  height: 6%;
+  position: fixed;
+  left: 71%;
+  top: 27%;
+}
+
+.student_id-input-box input {
+  width: 100%;
+  height: 100%;
+  background: #b12121;
+  border: none;
+  outline: none;
+  border-radius: 50px;
+  font-size: 20px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #FFFFFF;
+  padding-left: 30px;
+}
+
+.student_id-input-box input::placeholder{
+  color: #FFFFFF;
+}
+
+.student_name {
+  text-align: center;
+  font-size: 25px;
+  font-family: Arial, Helvetica, sans-serif;
+  color:#FFFFFF;
+  position: fixed;
+  right: 19%;
+  bottom: 10%;
+  font-weight: lighter;
+}
+
+.student_name span{
+  color: #FFFFFF;
+  text-decoration: none;
+  font-weight: bold;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 22px;
+  position: fixed;
+  top: 37.5%;
+  left: 59%;
+}
+
+.student_name .student_name-input-box {
+  width: 22%;
+  height: 6%;
+  position: fixed;
+  left: 71%;
+  top: 36%;
+}
+
+.student_name-input-box input {
+  width: 100%;
+  height: 100%;
+  background: #b12121;
+  border: none;
+  outline: none;
+  border-radius: 50px;
+  font-size: 20px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #FFFFFF;
+  padding-left: 30px;
+}
+
+.student_name-input-box input::placeholder{
+  color: #FFFFFF;
+}
+  
+
+.student_mid {
+  text-align: center;
+  font-size: 25px;
+  font-family: Arial, Helvetica, sans-serif;
+  color:#FFFFFF;
+  position: fixed;
+  right: 19%;
+  bottom: 10%;
+  font-weight: lighter;
+}
+
+.student_mid span{
+  color: #FFFFFF;
+  text-decoration: none;
+  font-weight: bold;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 22px;
+  position: fixed;
+  top: 46.5%;
+  left: 59%;
+}
+
+.student_mid .student_mid-input-box {
+  width: 22%;
+  height: 6%;
+  position: fixed;
+  left: 71%;
+  top: 45%;
+}
+
+.student_mid-input-box input {
+  width: 100%;
+  height: 100%;
+  background: #b12121;
+  border: none;
+  outline: none;
+  border-radius: 50px;
+  font-size: 20px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #FFFFFF;
+  padding-left: 30px;
+}
+
+.student_mid-input-box input::placeholder{
+  color: #FFFFFF;
+}
+
+.student_last {
+  text-align: center;
+  font-size: 25px;
+  font-family: Arial, Helvetica, sans-serif;
+  color:#FFFFFF;
+  position: fixed;
+  right: 19%;
+  bottom: 10%;
+  font-weight: lighter;
+}
+
+.student_last span{
+  color: #FFFFFF;
+  text-decoration: none;
+  font-weight: bold;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 22px;
+  position: fixed;
+  top: 55.5%;
+  left: 59%;
+}
+
+.student_last .student_last-input-box {
+  width: 22%;
+  height: 6%;
+  position: fixed;
+  left: 71%;
+  top: 54%;
+}
+
+.student_last-input-box input {
+  width: 100%;
+  height: 100%;
+  background: #b12121;
+  border: none;
+  outline: none;
+  border-radius: 50px;
+  font-size: 20px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #FFFFFF;
+  padding-left: 30px;
+}
+
+.student_last-input-box input::placeholder{
+  color: #FFFFFF;
+}
+
+.course_id {
+  text-align: center;
+  font-size: 25px;
+  font-family: Arial, Helvetica, sans-serif;
+  color:#FFFFFF;
+  position: fixed;
+  right: 19%;
+  bottom: 10%;
+  font-weight: lighter;
+}
+
+.course_id span{
+  color: #FFFFFF;
+  text-decoration: none;
+  font-weight: bold;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 22px;
+  position: fixed;
+  top: 65%;
+  left: 59%;
+}
+
+.course_id .course_id-input-box {
+  width: 22%;
+  height: 6%;
+  position: fixed;
+  left: 71%;
+  top: 63%;
+}
+
+.course_id-input-box input {
+  width: 100%;
+  height: 100%;
+  background: #b12121;
+  border: none;
+  outline: none;
+  border-radius: 50px;
+  font-size: 20px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #FFFFFF;
+  padding-left: 30px;
+}
+
+.course_id-input-box input::placeholder{
+  color: #FFFFFF;
+}
+
+.year_level {
+  text-align: center;
+  font-size: 25px;
+  font-family: Arial, Helvetica, sans-serif;
+  color:#FFFFFF;
+  position: fixed;
+  right: 19%;
+  bottom: 10%;
+  font-weight: lighter;
+}
+
+.year_level span{
+  color: #FFFFFF;
+  text-decoration: none;
+  font-weight: bold;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 22px;
+  position: fixed;
+  top: 73.5%;
+  left: 59%;
+}
+
+/* Add this style to customize the combo box */
+.year_level-input-box select {
+  width: 100%;
+  height: 100%;
+  background: #b12121;
+  border: none;
+  outline: none;
+  border-radius: 50px;
+  font-size: 20px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #FFFFFF;
+  padding-left: 30px;
+}
+
+.table-container {
+  position: fixed;
+  top: 30%; /* Adjust as needed */
+  left: 7.5%; /* Adjust as needed */
+  width: 50%; /* Adjust as needed */
+  height: 60%; /* Adjust as needed */
+  overflow-y: auto; /* Enable scrolling if needed */
+  background-color: #9a1313; /* Set background color */
+  border-radius: 30px; /* Set border radius */
+}
+
+.student-table-wrapper {
+  max-width: 100%;
+
+}
+
+.student-table {
+  width: 100%;
+  margin-top: -20px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+th {
+  padding: 10px;
+  text-align: center;
+  border-bottom: 1px solid #f9ae42;
+  font-size: 18px;
+  position: sticky;
+  top: 0;
+  background-color: #f7a91d;
+}
+
+td {
+  padding: 15px;
+  text-align: center;
+  border-bottom: 1px solid #f8c669;
+  font-size: 15px;
+  font-weight: 500;
+  color: #FFF;
+}
+
+tr:hover td {
+  color: #000;
+  background-color: #f8c669;
+  
+}
+
+/* Optional: Style the dropdown arrow */
+.year_level-input-box select::-ms-expand {
+  display: none;
+}
+
+.year_level-input-box select::after {
+  content: '\25BC'; /* Unicode character for down arrow */
+  position: absolute;
+  top: 50%;
+  right: 5%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  color: #FFFFFF;
+}
+
+/* Apply existing styles to the combo box wrapper if needed */
+.year_level-input-box {
+  width: 22%;
+  height: 6%;
+  position: fixed;
+  left: 71%;
+  top: 72%;
+}

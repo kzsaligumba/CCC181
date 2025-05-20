@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CHECKMATE</title>
+    <link rel="stylesheet" href="static/students.css">
+    <script>
+        var updatedStudentId; // Global variable to hold the initial student ID
+
+        function confirmLogout() {
+            var result = confirm("Are you sure you want to quit?");
+            if (result) {
+                window.location.href = "{{ url_for('index') }}";
+            }
+        }
+
+        function fetchAndPopulateTable() {
+            // Fetch data from the server
+            fetch('/get_students', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Populate the table with fetched data
+                    populateTable(data.students);
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                    // Handle the error
+                });
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            // Fetch data when the page loads
+            fetchAndPopulateTable();
+
+            // Function to filter and display student by ID
+            function searchStudent() {
+                var searchInput = document.getElementById('searchInput');
+                var searchValue = searchInput.value.toLowerCase();
+
+                // Fetch the students data
+                fetch('/search_students?search=' + encodeURIComponent(searchValue), {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        // Populate the table with filtered data
+                        populateTable(data.students);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching data:', error);
+                        // Handle the error
+                    });
+            }
+
+            // Event listener for the search button
+            var searchButton = document.querySelector('.searchbar-button');
+            searchButton.addEventListener('click', function() {
+                searchStudent(); // Call the search function when the button is clicked
+            });
+
+        });
+
+        function populateTable(students) {
+            // Get the table body element
+            var tableBody = document.querySelector('#studentsTable tbody');
+
+            // Clear existing rows
+            tableBody.innerHTML = '';
+
+            // Iterate over the students and add rows to the table
+            students.forEach(function(student) {
+                var row = tableBody.insertRow(0); // Insert row at the beginning
+
+                // Add cells to the row in the correct order
+                var keys = ['student_id', 'student_name', 'student_mid', 'student_last', 'course_id', 'year_level'];
+
+                keys.forEach(function(key) {
+                    var cell = row.insertCell();
+                    cell.textContent = student[key];
+                });
+
+                // Add click event listener to each row
+                row.addEventListener('click', function() {
+                    // Fill input fields with row data
+                    document.getElementById('studentIdInput').value = student.student_id;
+                    document.getElementById('studentnameInput').value = student.student_name;
+                    document.getElementById('studentmidInput').value = student.student_mid;
+                    document.getElementById('studentlastInput').value = student.student_last;
+                    document.getElementById('courseidInput').value = student.course_id;
+                    document.getElementById('yearlevelInput').value = student.year_level;
+                    updatedStudentId = student.student_id; // Store the initial student ID
+                });
+            });
+        }
+
+
+        function createStudent() {
+            // Get input values
+            var studentIdInput = document.getElementById("studentIdInput").value;
+            var studentNameInput = document.getElementById("studentnameInput").value;
+            var studentMidInput = document.getElementById("studentmidInput").value; // Allow empty value
+            var studentLastInput = document.getElementById("studentlastInput").value;
+            var courseIdInput = document.getElementById("courseidInput").value;
+            var yearLevelInput = document.getElementById("yearlevelInput").value;
+
+            // Client-side validation
+            if (!studentIdInput || !studentNameInput || !studentLastInput || !courseIdInput || !yearLevelInput) {
+                alert("Please fill out all required fields.");
+                return;
+            }
+
+            // Send data to the server...
+            fetch('/create_student', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    'studentId': studentIdInput,
+                    'studentname': studentNameInput,
+                    'studentmid': studentMidInput,
+                    'studentlast': studentLastInput,
+                    'courseid': courseIdInput,
+                    'yearlevel': yearLevelInput,
+                }),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Handle the response from the server
+                console.log(data);
+                if (data.error) {
+                    alert(data.error); // Display error message from the server
+                } else {
+                    // Display success message and update table
+                    alert(data.message || "Student created successfully");
+                    clearFields();
+                    fetchAndPopulateTable();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while creating the student. Please try again.'); // Notify user of unexpected error
+            });
+        }
+
+
+        function updateStudent() {
+            // Get input values
+            var studentId = document.getElementById("studentIdInput").value;
+            var updatedStudentName = document.getElementById("studentnameInput").value;
+            var updatedStudentMid = document.getElementById("studentmidInput").value;
+            var updatedStudentLast = document.getElementById("studentlastInput").value;
+            var updatedCourseId = document.getElementById("courseidInput").value;
+            var updatedYearLevel = document.getElementById("yearlevelInput").value;
+
+            // Client-side validation
+            if (!studentId || !updatedStudentName || !updatedStudentLast || !updatedCourseId || !updatedYearLevel) {
+                alert("Please fill out all required fields.");
+                return;
+            }
+
+            // Check if the student ID exists
+            if (!studentIdExists(studentId)) {
+                alert("The Student ID does not exist. Please enter a valid Student ID.");
+                return;
+            }
+
+            // Check if the student ID has been changed
+            if (studentId !== updatedStudentId) {
+                alert("Student ID cannot be updated.");
+                return;
+            }
+
+            // Send data to the server for updating
+            fetch('/update_student/' + studentId, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        'updatedStudentName': updatedStudentName,
+                        'updatedStudentMid': updatedStudentMid,
+                        'updatedStudentLast': updatedStudentLast,
+                        'updatedCourseId': updatedCourseId,
+                        'updatedYearLevel': updatedYearLevel,
+                    }),
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Handle the response from the server
+                    console.log(data);
+
+                    // Display message to the user
+                    alert(data.message || data.error);
+
+                    // Clear input fields on success
+                    if (!data.error) {
+                        clearFields();
+                        fetchAndPopulateTable();
+                    }
+
+                    // Optionally, update the UI based on the response
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // Handle the error
+                });
+        }
+
+        function deleteStudent() {
+            // Get the student ID to delete
+            var studentId = document.getElementById("studentIdInput").value;
+
+            // Check if the student ID exists
+            if (!studentIdExists(studentId)) {
+                alert("The Student ID does not exist. Please enter a valid Student ID.");
+                return;
+            }
+
+            // Prompt the user for confirmation
+            var result = confirm("Are you sure you want to delete this student?");
+
+            // Check the user's response
+            if (result) {
+                // User confirmed deletion, proceed with sending request to server
+                fetch('/delete_student/' + studentId, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Handle the response from the server
+                        console.log(data);
+
+                        // Display message to the user
+                        alert(data.message || data.error);
+
+                        // Clear input fields on success
+                        if (!data.error) {
+                            clearFields();
+                            fetchAndPopulateTable();
+                        }
+
+                        // Optionally, update the UI based on the response
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        // Handle the error
+                    });
+            }
+            // If the user clicked "Cancel," do nothing
+        }
+
+        function clearFields() {
+            var studentIdInput = document.getElementById("studentIdInput");
+            var studentNameInput = document.getElementById("studentnameInput");
+            var studentMidInput = document.getElementById("studentmidInput");
+            var studentLastInput = document.getElementById("studentlastInput");
+            var courseIdInput = document.getElementById("courseidInput");
+            var yearLevelInput = document.getElementById("yearlevelInput");
+
+            // Reset the values of input fields
+            studentIdInput.value = '';
+            studentNameInput.value = '';
+            studentMidInput.value = '';
+            studentLastInput.value = '';
+            courseIdInput.value = '';
+            yearLevelInput.value = 'First'; // Reset to the default value
+        }
+
+        function studentIdExists(studentId) {
+            var rows = document.querySelectorAll('#studentsTable tbody tr');
+            for (var i = 0; i < rows.length; i++) {
+                if (rows[i].cells[0].textContent === studentId) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function courseIdExistsInTreeView(courseId) {
+            // This function should check if the courseId exists in the course treeview.
+            // You need to implement this function based on how your course treeview is structured or stored.
+            // If you have the course data available in an array or object, you can check if the courseId exists in that data.
+            // Replace this with your actual implementation.
+            // For demonstration purposes, let's assume courseId exists in a global array named courseData.
+            var courseData = ["CS101", "CS102", "CS103", "CS104"]; // Example array of course IDs
+            return courseData.includes(courseId);
+        }
+
+        // Event listeners for the buttons
+        document.querySelector('.create-button').addEventListener('click', createStudent);
+        document.querySelector('.update-button').addEventListener('click', updateStudent);
+        document.querySelector('.delete-button').addEventListener('click', deleteStudent);
+    </script>
+    <style>
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border: 2px solid #FFA500;
+            box-shadow: 0 0 5px rgba(255, 165, 0, 0.5);
+        }
+
+        .wrapper {
+            position: relative;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+        <input type="checkbox" id="btn" hidden>
+        <label for="btn" class="menu-btn">
+            <i class="checmate"> <img src="static/cm.png" width="30px" height="30px" alt=""> </i>
+        </label>
+        <nav id="sidebar">
+            <div class="title">CHECKMATE</div>
+            <ul class="list-items">
+                <li><a onclick="location.href='{{ url_for('dashboard') }}'">Dashboard</a></li>
+                <li><a onclick="location.href='{{ url_for('student') }}'">Student</a></li>
+                <li><a onclick="location.href='{{ url_for('courses') }}'">Courses</a></li>
+                <li><a onclick="location.href='{{ url_for('events') }}'">Events</a></li>
+                <li><a onclick="location.href='{{ url_for('attendance') }}'">Attendance</a></li>
+                <li><a onclick="location.href='{{ url_for('membership') }}'">Membership</a></li>
+                <li><a href="#" onclick="confirmLogout()">Logout</a></li>
+            </ul>
+        </nav>
+    </div>
+    <div class="searchbar">
+        <div class="searchbar-input-box">
+            <input type="text" placeholder="Type to Search..." id="searchInput">
+        </div>
+        <button class="cta-button searchbar-button">
+            SEARCH
+        </button>
+
+        <div class="student_id">
+            <span> Student ID: </span>
+            <div class="student_id-input-box">
+                <input type="text" id="studentIdInput" name="studentId" placeholder="Type here">
+            </div>
+        </div>
+
+        <div class="student_name">
+            <span> First Name: </span>
+            <div class="student_name-input-box">
+                <input type="text" id="studentnameInput" name="studentname" placeholder="Type here">
+            </div>
+        </div>
+
+        <div class="student_mid">
+            <span> Middle Initial: </span>
+            <div class="student_mid-input-box">
+                <input type="text" id="studentmidInput" name="studentmid" placeholder="Type here">
+            </div>
+        </div>
+
+        <div class="student_last">
+            <span> Surname: </span>
+            <div class="student_last-input-box">
+                <input type="text" id="studentlastInput" name="studentlast" placeholder="Type here">
+            </div>
+        </div>
+
+        <div class="course_id">
+            <span> Course ID: </span>
+            <div class="course_id-input-box">
+                <input type="text" id="courseidInput" name="courseid" placeholder="Type here">
+            </div>
+        </div>
+
+        <div class="year_level">
+            <span> Year Level: </span>
+            <div class="year_level-input-box">
+                <select id="yearlevelInput" name="yearlevel">
+                    <option value="First">First</option>
+                    <option value="Second">Second</option>
+                    <option value="Third">Third</option>
+                    <option value="Fourth">Fourth</option>
+                    <option value="Fifth">Fifth</option>
+                    <option value="graduate">Graduate</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <button class="cta-button create-button" onclick="createStudent()">
+                CREATE
+            </button>
+            <button class="cta-button update-button" onclick="updateStudent()">
+                UPDATE
+            </button>
+            <button class="cta-button delete-button" onclick="deleteStudent()">
+                DELETE
+            </button>
+            <button class="cta-button clear-button" onclick="clearFields()">
+                CLEAR
+            </button>
+        </div>
+        <div class="table-container">
+            <div class="student-table-wrapper">
+                <div class="student-table">
+                    <table id="studentsTable">
+                        <thead>
+                            <tr>
+                                <th>Student ID</th>
+                                <th>First Name</th>
+                                <th>Middle Initial</th>
+                                <th>Surname</th>
+                                <th>Course ID</th>
+                                <th>Year Level</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

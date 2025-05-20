@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CHECKMATE</title>
+  <link rel="stylesheet" href="static/membership.css">
+
+  <!-- Digital Clock Styles -->
+  <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Orbitron'>
+  <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Aldrich'>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      function updateMembershipCount() {
+        $.get("/total_memberships", function(data) {
+          var count = data.total_memberships;
+          $("#current-membership-count").text(count); // Set the text directly without animation
+        });
+      }
+    
+      updateMembershipCount(); // Initial call for membership count
+    
+      // Automatically update membership count every 5 seconds (5000 milliseconds)
+      setInterval(updateMembershipCount, 5000); // Adjust interval as needed
+    });
+  </script>
+</head>
+
+<script>
+        function confirmLogout() {
+            var result = confirm("Are you sure you want to quit?");
+            if (result) {
+                window.location.href = "{{ url_for('index') }}";
+            }
+        }
+
+        function register() {
+            var orNumber = document.getElementById("ORNumberInput").value;
+            var studentId = document.getElementById("StudentIdInput").value;
+            var amount = document.getElementById("AmountInput").value;
+            var modeOfPayment = document.getElementById("ModeInput").value;
+            var semester = document.getElementById("yearlevelInput").value;
+            var receiver = document.getElementById("ReceiverInput").value;
+
+            // Example: Validation checks
+            if (orNumber.trim() === "" || studentId.trim() === "" || amount.trim() === "" || modeOfPayment.trim() === "" || receiver.trim() === "") {
+                alert("Please fill in all required fields.");
+                return;
+            }
+
+            // Create a new XMLHttpRequest object
+            var xhr = new XMLHttpRequest();
+
+            // Configure the request
+            xhr.open("POST", "/register-membership", true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+            // Define what happens on successful data submission
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    if (response.message === "Registration successful") {
+                        alert("Membership registration successful!");
+                        populateMembershipTable(); // Refresh the table
+                    } else if (response.message === "Student already paid") {
+                        alert("Student already paid. Cannot register again.");
+                    } else {
+                        alert("Failed to register membership. Please try again later.");
+                    }
+                } else {
+                    alert("Failed to register membership. Please try again later.");
+                }
+            };
+
+            // Handle network errors
+            xhr.onerror = function () {
+                alert("Network error occurred. Please try again later.");
+            };
+
+            // Construct the request payload
+            var params = "ORNumber=" + encodeURIComponent(orNumber) +
+                "&StudentId=" + encodeURIComponent(studentId) +
+                "&Amount=" + encodeURIComponent(amount) +
+                "&Mode=" + encodeURIComponent(modeOfPayment) +
+                "&Semester=" + encodeURIComponent(semester) +
+                "&Receiver=" + encodeURIComponent(receiver);
+
+            // Send the request
+            xhr.send(params);
+        }
+
+
+        
+
+        function getMembershipCount() {
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "/membership-count", true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    var count = JSON.parse(xhr.responseText).count;
+                    document.getElementById("headCountNumber").innerText = count; // Display only the membership count number
+                } else {
+                    document.getElementById("headCountNumber").innerText = "Failed to retrieve membership count";
+                }
+            };
+            xhr.send();
+        }
+
+        function searchMF() {
+            var searchTerm = document.getElementById("SearchInput").value.trim().toLowerCase();
+            var tableRows = document.querySelectorAll("#memberTable tbody tr");
+
+            tableRows.forEach(function(row) {
+                var orNumber = row.cells[0].textContent.trim().toLowerCase(); // Get the OR number from the first cell of each row
+
+                // Check if the row matches the search term for OR number
+                if (orNumber.includes(searchTerm)) {
+                    row.classList.remove('hidden'); // Show the row by removing 'hidden' class
+                } else {
+                    row.classList.add('hidden'); // Hide the row by adding 'hidden' class
+                }
+            });
+        }
+
+
+
+        function clearMF() {
+            // Clear input fields
+            document.getElementById("ORNumberInput").value = "";
+            document.getElementById("StudentIdInput").value = "";
+            document.getElementById("AmountInput").value = "";
+            document.getElementById("ModeInput").value = "";
+            document.getElementById("ReceiverInput").value = "";
+            document.getElementById("yearlevelInput").value = "First"; // Reset semester to default value
+
+            // Clear search input
+            document.getElementById("SearchInput").value = "";
+
+            // Show all rows in the table
+            var tableRows = document.querySelectorAll("#memberTable tbody tr");
+            tableRows.forEach(function(row) {
+                row.classList.remove('hidden'); // Remove 'hidden' class to show all rows
+            });
+        }
+
+        // Call the function to retrieve the membership count
+        getMembershipCount();
+
+        // Modify the populateInputFields function to accept row index as parameter
+        function populateInputFields(rowIndex) {
+            var row = document.querySelector("#memberTable tbody").rows[rowIndex];
+            var cells = row.cells;
+            document.getElementById("ORNumberInput").value = cells[0].textContent;
+            document.getElementById("StudentIdInput").value = cells[1].textContent;
+            document.getElementById("AmountInput").value = cells[4].textContent;
+            document.getElementById("ModeInput").value = cells[5].textContent;
+            document.getElementById("SemesterInput").value = cells[6].textContent;
+            document.getElementById("ReceiverInput").value = cells[7].textContent;
+        }
+
+        // Call the populateInputFields function when a row is clicked
+        function populateMembershipTable() {
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "/membership-data", true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    var data = JSON.parse(xhr.responseText).data;
+                    var tableBody = document.querySelector("#memberTable tbody");
+                    tableBody.innerHTML = ""; // Clear existing rows
+                    data.forEach(function (member, index) {
+                        var row = tableBody.insertRow(0); // Insert new row at the beginning of the table
+                        row.insertCell(0).textContent = member[1]; // OR Number
+                        row.insertCell(1).textContent = member[2]; // Student ID
+                        row.insertCell(2).textContent = member[3]; // Date of Payment
+                        row.insertCell(3).textContent = member[4]; // Semester
+                        row.insertCell(4).textContent = member[5]; // Amount
+                        row.insertCell(5).textContent = member[6]; // Mode of Payment
+                        row.insertCell(6).textContent = member[7]; // Receiver
+
+                        // Add click event listener to each row
+                        row.addEventListener("click", function () {
+                            populateInputFields(index); // Populate input fields with row data
+                        });
+                        // Add CSS cursor style to indicate clickable rows
+                        row.style.cursor = "pointer";
+                    });
+                } else {
+                    console.error("Failed to fetch membership data.");
+                }
+            };
+            xhr.send();
+        }
+
+
+        // Call the populateMembershipTable function when the page loads
+        populateMembershipTable();
+
+        function deleteSearchMF() {
+            var orNumber = document.getElementById("ORNumberInput").value.trim();
+
+            if (orNumber === "") {
+                alert("Please enter the OR Number to delete.");
+                return;
+            }
+
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "/delete-membership", true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    alert(response.message);
+                    populateMembershipTable(); // Refresh the table after successful deletion
+                } else {
+                    alert("Failed to delete membership record. Please try again later.");
+                }
+            };
+            xhr.send("ORNumber=" + encodeURIComponent(orNumber));
+        }
+
+        
+    </script>
+
+<style>
+  input[type="text"]:focus,
+  input[type="password"]:focus {
+      outline: none;
+      border: 2px solid #FFA500;
+      box-shadow: 0 0 5px rgba(255, 165, 0, 0.5);
+  }
+
+  .wrapper {
+      position: relative;
+  }
+  .hidden {
+      display: none;
+  }
+</style>
+</head>
+<body>
+  <div class="wrapper">
+    <input type="checkbox" id="btn" hidden>
+    <label for="btn" class="menu-btn">
+      <i class="checmate"> <img src="static/cm.png" width="30px" height="30px" alt=""> </i>
+    </label>
+    <nav id="sidebar">
+      <div class="title">CHECKMATE</div>
+      <ul class="list-items">
+        <li><a onclick="location.href='{{ url_for('dashboard') }}'">Dashboard</a></li>
+        <li><a onclick="location.href='{{ url_for('student') }}'">Student</a></li>
+        <li><a onclick="location.href='{{ url_for('courses') }}'">Courses</a></li>
+        <li><a onclick="location.href='{{ url_for('events') }}'">Events</a></li>
+        <li><a onclick="location.href='{{ url_for('attendance') }}'">Attendance</a></li>
+        <li><a onclick="location.href='{{ url_for('membership') }}'">Membership</a></li>
+        <li><a href="#" onclick="confirmLogout()">Logout</a></li>
+      </ul>
+    </nav>
+  </div>
+  <div class="wrapper_outer">
+    <div class = "wafer">
+        <div class = "parallax_section">
+            <div class="parallax_bg" style="background-image: url('{{ url_for('static', filename='bg19.png') }}')"></div>
+        </div>
+  <div class="or_number">
+    <span> OR Number: </span>
+    <div class="or_number-input-box">
+      <input type="text" id="ORNumberInput" name="ORNumber" placeholder="Type here">
+    </div>
+  </div>
+  <div class="student_id">
+    <span> Student ID: </span>
+    <div class="student_id-input-box">
+      <input type="text" id="StudentIdInput" name="StudentId" placeholder="Type here">
+    </div>
+    <div class="amount">
+      <span> Amount Paid: </span>
+      <div class="amount-input-box">
+        <input type="text" id="AmountInput" name="Amount" placeholder="Type here">
+      </div>
+      <div class="mode">
+        <span> Mode of Payment: </span>
+        <div class="mode-input-box">
+          <input type="text" id="ModeInput" name="Mode" placeholder="Type here">
+        </div>
+        <div class="sem">
+          <span> Semester: </span>
+          <div class="sem-input-box">
+            <select id="yearlevelInput" name="yearlevel">
+              <option value="First">1</option>
+              <option value="Second">2</option>
+            </select>
+          </div>
+          <div class="receiver">
+            <span> Receiver: </span>
+            <div class="receiver-input-box">
+              <input type="text" id="ReceiverInput" name="Receiver" placeholder="Type here">
+              <button class="cta-button register-button" onclick="register()">Register</button>
+              <button class="cta-button print-button" onclick="print()">Print Receipt</button>
+            </div>
+            <div class="membership-container">
+              <div class="membershipcount">
+                <span id="membership-count">HEAD COUNT(PAID):</span>
+              </div>
+              <div class="membership-count">
+                <span id="current-membership-count">{{ total_memberships }}</span>
+              </div>
+            </div>            
+            <div class="searchbar">
+              <div class="searchbar-input-box">
+                <input type="text" id="SearchInput" placeholder="Type here">
+              </div>
+              <div>
+                <button class="cta-button searchbar-button" onclick="searchMF()">SEARCH</button>
+                <button class="cta-button clear-button" onclick="clearMF()">CLEAR</button>
+                <button class="cta-button del-button" onclick="deleteSearchMF()">DELETE</button>
+              </div>
+            </div>
+            <div class="table-container">
+              <div class="member-table-wrapper">
+                <div class="member-table">
+                  <table id="memberTable">
+                    <thead>
+                      <tr>
+                        <th>OR Number</th>
+                        <th>Student ID</th>
+                        <th>Date of Payment</th>
+                        <th>Semester </th>
+                        <th>Amount</th>
+                        <th>Mode of Payment</th>
+                        <th>Receiver</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

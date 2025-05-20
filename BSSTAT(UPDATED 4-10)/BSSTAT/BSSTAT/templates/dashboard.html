@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CHECKMATE</title>
+    <link rel="stylesheet" href="static/dashboard.css">
+
+    <!-- Digital Clock Styles -->
+    <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Orbitron'>
+    <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Aldrich'>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+      $(document).ready(function() {
+        function updateCourseCount() {
+            $.get("/total_courses", function(data) {
+                var count = data.total_courses;
+                $("#current-course-count").stop(true).animate({
+                    count: count
+                }, {
+                    duration: 1000,
+                    easing: "easeOutCubic",
+                    step: function(now) {
+                        $(this).text(Math.floor(now));
+                    }
+                });
+            });
+        }
+    
+        function updateStudentCount() {
+            $.get("/total_students", function(data) {
+                var count = data.total_students;
+                $("#current-student-count").stop(true).animate({
+                    count: count
+                }, {
+                    duration: 1000,
+                    easing: "easeOutCubic",
+                    step: function(now) {
+                        $(this).text(Math.floor(now));
+                    }
+                });
+            });
+        }
+    
+        updateCourseCount(); // Initial call for course count
+        updateStudentCount(); // Initial call for student count
+    
+        // Update on course or student addition (replace this with your specific logic)
+        $("#add-course-button").click(function() {
+            updateCourseCount();
+        });
+    
+        $("#add-student-button").click(function() {
+            updateStudentCount();
+        });
+    });
+    </script>
+
+    <style>
+      body {
+      
+      }
+
+      .clock {
+        position: fixed;
+        top: 25%;
+        left: 80%;
+        transform: translateX(-50%) translateY(-50%);
+        color: white;
+        font-family: 'Orbitron', sans-serif;
+        letter-spacing: 20%;
+        background: transparent;
+        white-space: nowrap;
+      }
+
+      #MyClockTime,
+      #MyClockDate {
+        text-align: center;
+      }
+
+      #MyClockTime {
+        font-size: 45px;
+        font-family: 'Orbitron', sans-serif;
+        top: 310%;
+        left: 50%;
+      }
+
+      #MyClockDate {
+        position: absolute;
+        top: 530%; 
+        left: 50%; 
+        transform: translate(-50%, -50%);
+        font-size: 45px;
+        font-family: 'Orbitron', sans-serif;
+
+      }
+    </style>
+  </head>
+  <body>
+    <div class="clock">
+      <div id="MyClockTime"></div>
+      <div id="MyClockDate"></div>
+    </div>
+
+    <div class="wrapper">
+      <input type="checkbox" id="btn" hidden>
+      <label for="btn" class="menu-btn">
+        <i class="checmate"> <img src="static/cm.png" width="30px" height="30px" alt=""> </i>
+      </label>
+      <nav id="sidebar">
+        <div class="title">CHECKMATE</div>
+        <ul class="list-items">
+          <li><a onclick="location.href='{{ url_for('dashboard') }}'">Dashboard</a></li>
+          <li><a onclick="location.href='{{ url_for('student') }}'">Student</a></li>
+          <li><a onclick="location.href='{{ url_for('courses') }}'">Courses</a></li>
+          <li><a onclick="location.href='{{ url_for('events') }}'">Events</a></li>
+          <li><a onclick="location.href='{{ url_for('attendance') }}'">Attendance</a></li>
+          <li><a onclick="location.href='{{ url_for('membership') }}'">Membership</a></li>
+          <li><a href="#" onclick="confirmLogout()">Logout</a></li>
+        </ul>
+      </nav>
+    </div>
+    <div class="content">
+      <div class="header1" style="background: transparent; padding: 10px;">
+        <h1><span class="dash">DASH</span><span class="board">BOARD</span></h1> 
+      </div>
+    </div>
+    <div class = "course-container">
+      <div class = "coursecount">
+        <span id = "course-count">COURSE COUNT</span>
+      </div>
+      <div class="course-count">
+        <span id="current-count">{{ total_courses }}</span>
+    </div>
+  </div>
+  <div class="student-container">
+    <div class="studentcount">
+        <span id="student-count">STUDENT COUNT</span>
+    </div>
+    <div class="student-count">
+        <span id="current-student-count">{{ total_students }}</span>
+    </div>
+</div>
+</div>
+  <div class="wrapper_outer">
+    <div class = "wafer">
+        <div class = "parallax_section">
+            <div class="parallax_bg" style="background-image: url('{{ url_for('static', filename='bg5.png') }}')"></div>
+        </div>
+
+    <!-- Move the script tag here -->
+    <script>
+      function confirmLogout() {
+        var result = confirm("Are you sure you want to quit?");
+        if (result) {
+          window.location.href = "{{ url_for('index') }}";
+        }
+      }
+
+      function showTime() {
+        var date = new Date();
+        var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+        var day = days[date.getDay()];
+        var month = months[date.getMonth()];
+        var dayOfMonth = date.getDate();
+        var year = date.getFullYear();
+
+        var h = date.getHours(); // 0 - 23
+        var m = date.getMinutes(); // 0 - 59
+        var s = date.getSeconds(); // 0 - 59
+        var session = "AM";
+
+        if (h == 0) {
+          h = 12;
+        }
+
+        if (h > 12) {
+          h = h - 12;
+          session = "PM";
+        }
+
+        h = (h < 10) ? "0" + h : h;
+        m = (m < 10) ? "0" + m : m;
+        s = (s < 10) ? "0" + s : s;
+
+        var time = h + ":" + m + ":" + s + " " + session;
+        var currentDate = day + "<br>" + month + "," + dayOfMonth + "<br>" + year;
+
+        // Set the time and date in separate elements
+        document.getElementById("MyClockTime").innerHTML = time;
+        document.getElementById("MyClockDate").innerHTML = currentDate;
+
+        setTimeout(showTime, 1000);
+      }
+
+      // Call the showTime function to initialize the clock
+      showTime();
+    </script>
+  </body>
+</html>

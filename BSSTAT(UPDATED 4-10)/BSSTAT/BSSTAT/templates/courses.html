@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CHECKMATE</title>
+  <link rel="stylesheet" href="static/courses.css">
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      function refreshCourseTable() {
+        $.ajax({
+          url: "/get_courses",
+          method: "GET",
+          success: function (courses) {
+            updateCourseTable(courses.filter(course => course.course_id.trim() !== "" && course.course_name.trim() !== ""));
+          },
+          error: function (error) {
+            console.error("Error fetching courses:", error);
+          }
+        });
+      }
+
+      function updateCourseTable(courses) {
+        var tableBody = $(".course-table tbody");
+        tableBody.empty();
+
+        courses.forEach(function (course) {
+          var row = "<tr><td>" + course.course_id + "</td><td>" + course.course_name + "</td></tr>";
+          tableBody.prepend(row); // Use prepend instead of append
+        });
+      }
+
+      $(".create-button").on("click", function () {
+        var courseName = $(".course_name-input-box input").val();
+        var courseId = $(".course_id-input-box input").val();
+
+        if (courseId.trim() === "" || courseName.trim() === "") {
+          alert("Both Course ID and Course Name are required.");
+          return;
+        }
+
+        var confirmCreate = confirm("Do you really want to create this course?\n\nCourse ID: " + courseId + "\nCourse Name: " + courseName);
+        if (confirmCreate) {
+          $.ajax({
+            url: "/create_course",
+            method: "POST",
+            contentType: 'application/x-www-form-urlencoded;charset=UTF-8',
+            data: {
+              courseName: courseName,
+              courseId: courseId
+            },
+            success: function (response) {
+              alert(response.message);
+              $(".course_name-input-box input").val("");
+              $(".course_id-input-box input").val("");
+              refreshCourseTable();
+            },
+            error: function (error) {
+              alert("Error creating course");
+            }
+          });
+        }
+      });
+
+      $(".update-button").on("click", function () {
+        var courseId = $(".course_id-input-box input").val();
+        var updatedCourseName = $(".course_name-input-box input").val();
+        var currentCourseName = $(".course-table tbody tr:contains(" + courseId + ") td:nth-child(2)").text();
+
+        if (courseId.trim() === "" || updatedCourseName.trim() === "") {
+          alert("Please fill up both Course ID and Course Name. It is required for updating.");
+          return;
+        }
+
+        if (currentCourseName === "") {
+          alert("Course ID does not exist. Cannot update values.");
+          return;
+        }
+
+        var confirmUpdate = confirm("Do you really want to update the course?\n\nCurrent Course Name: " + currentCourseName + "\nNew Course Name: " + updatedCourseName);
+        if (confirmUpdate) {
+          $.ajax({
+            url: "/update_course/" + courseId,
+            method: "POST",
+            data: {
+              updatedCourseName: updatedCourseName,
+              updatedCourseId: courseId
+            },
+            success: function (response) {
+              alert(response.message);
+              $(".course_name-input-box input").val("");
+              $(".course_id-input-box input").val("");
+              refreshCourseTable();
+            },
+            error: function (error) {
+              alert("Error updating course");
+            }
+          });
+        }
+      });
+
+      $(".delete-button").on("click", function () {
+        var courseId = $(".course_id-input-box input").val();
+        var courseName = $(".course_name-input-box input").val();
+
+        var confirmDelete = confirm("Do you really want to delete the item?\n\nCourse ID: " + courseId + "\nCourse Name: " + courseName);
+        if (confirmDelete) {
+          $.ajax({
+            url: "/delete_course/" + courseId,
+            method: "POST",
+            success: function (response) {
+              alert(response.message);
+              $(".course_name-input-box input").val("");
+              $(".course_id-input-box input").val("");
+              refreshCourseTable();
+            },
+            error: function (error) {
+              alert("Error deleting course");
+            }
+          });
+        }
+      });
+
+      $(".clear-button").on("click", function () {
+        $(".course_name-input-box input").val("");
+        $(".course_id-input-box input").val("");
+      });
+
+      $(".course-table tbody").on("click", "tr", function () {
+        var courseId = $(this).find("td:first-child").text();
+        var courseName = $(this).find("td:nth-child(2)").text();
+
+        $(".course_id-input-box input").val(courseId);
+        $(".course_name-input-box input").val(courseName);
+      });
+
+      $(".search-button").on("click", function () {
+        var searchTerm = $(".search-input-box input").val().toLowerCase();
+
+        $(".course-table tbody tr").filter(function () {
+          $(this).toggle(
+            $(this).text().toLowerCase().indexOf(searchTerm) > -1
+          );
+        });
+      });
+
+      refreshCourseTable();
+    });
+  </script>
+
+  <script>
+    function confirmLogout() {
+      var result = confirm("Are you sure you want to quit?");
+      if (result) {
+        window.location.href = "{{ url_for('index') }}";
+      }
+    }
+  </script>
+
+  <style>
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+      outline: none;
+      border: 2px solid #FFA500;
+      box-shadow: 0 0 5px rgba(255, 165, 0, 0.5);
+    }
+
+    .wrapper {
+      position: relative;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrapper">
+    <input type="checkbox" id="btn" hidden>
+    <label for="btn" class="menu-btn">
+      <i class="checmate"> <img src="static/cm.png" width="30px" height="30px" alt=""> </i>
+    </label>
+    <nav id="sidebar">
+      <div class="title">CHECKMATE</div>
+      <ul class="list-items">
+        <li><a onclick="location.href='{{ url_for('dashboard') }}'">Dashboard</a></li>
+        <li><a onclick="location.href='{{ url_for('student') }}'">Student</a></li>
+        <li><a onclick="location.href='{{ url_for('courses') }}'">Courses</a></li>
+        <li><a onclick="location.href='{{ url_for('events') }}'">Events</a></li>
+        <li><a onclick="location.href='{{ url_for('attendance') }}'">Attendance</a></li>
+        <li><a onclick="location.href='{{ url_for('membership') }}'">Membership</a></li>
+        <li><a href="#" onclick="confirmLogout()">Logout</a></li>
+      </ul>
+    </nav>
+  </div>
+  <div class="search">
+    <div class="search-input-box">
+      <input type="text" placeholder="Type here">
+    </div>
+    <button class="cta-button search-button">
+      SEARCH
+    </button>
+
+    <div class="course_id">
+      <span> Course ID: </span>
+      <div class="course_id-input-box">
+        <input type="text" id="courseIdInput" name="courseId" placeholder="Type here">
+      </div>
+    </div>
+    <div class="course_name">
+      <span> Course Name: </span>
+      <div class="course_name-input-box">
+        <input type="text" id="courseNameInput" placeholder="Type here">
+      </div>
+    </div>
+    <div class="buttons">
+      <button class="cta-button create-button">
+        CREATE
+      </button>
+      <button class="cta-button update-button">
+        UPDATE
+      </button>
+      <button class="cta-button delete-button">
+        DELETE
+      </button>
+      <button class="cta-button clear-button">
+        CLEAR
+      </button>
+    </div>
+    <div class="table-container">
+      <div class="course-table-wrapper">
+        <div class="course-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Course ID</th>
+                <th>Course Name</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for course in courses %}
+              <tr>
+                <td>{{ course.course_id }}</td>
+                <td>{{ course.course_name }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

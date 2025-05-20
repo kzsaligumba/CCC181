@@ -1,0 +1,159 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: url('/static/bg2.png') no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+
+/* Styling for the buttons */
+.cta-button {
+    width: 20%;
+    height: 7.5%;
+    font-size: 20px;
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 10px;
+    cursor: pointer;
+    border: none;
+    border-radius: 25px;
+    transition: background-color 0.3s;
+}
+.home-button {
+    width: 10%;
+    height: 7.5%;
+    position: fixed;
+    right: 6%;
+    top: 6%;
+    font-size: 20px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 550;
+    cursor: pointer;
+    border: none;
+    border-radius: 40px;
+    background-color: #8c1111;
+    color: #FFFFFF;
+    transition:#6b0d0d 0.3s;
+}
+
+.home-button:hover {
+    background-color: #b02221;
+}
+.login .user-input-box {
+    width: 36.5%;
+    height: 8%;
+    position: fixed;
+    left: 51%;
+    top: 40%;
+}
+
+.user-input-box input {
+    width: 100%;
+    height: 100%;
+    background: #b12121;
+    border: none;
+    outline: none;
+    border-radius: 50px;
+    font-size: 22px;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #FFFFFF;
+    padding-left: 30px;
+}
+.user-input-box input::placeholder {
+    color: #FFFFFF;
+}
+
+.login .password-input-box {
+    width: 36.5%;
+    height: 8%;
+    position: fixed;
+    left: 51%;
+    top: 51%;
+    
+}
+
+.password-input-box input {
+    width: 100%;
+    height: 100%;
+    background: #b12121;
+    border: none;
+    outline: none;
+    border-radius: 50px;
+    font-size: 22px;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #FFFFFF;
+    padding-left: 30px;
+}
+.password-input-box input::placeholder {
+    color: #FFFFFF;
+}
+
+.login-button {
+    width: 10%;
+    height: 7.5%;
+    position: fixed;
+    left: 64%;
+    bottom: 23%;
+    font-size: 20px;
+    font-family: Arial, Helvetica, sans-serif;
+    cursor: pointer;
+    border: none;
+    border-radius: 40px;
+    background-color: #650c0c;
+    color: #FFFFFF;
+    transition:#b12121 0.3s;
+}
+
+.login-button:hover {
+    background-color: #b12121;
+}
+
+.forgot_password {
+    text-align: center;
+    font-size: 20px;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #f9ae42;
+    position: fixed;
+    right: 13%;
+    bottom: 36.5%;
+}
+.forgot_password a{
+    color: #f9ae42;
+    text-decoration: underline;
+}
+.forgot_password a:hover{
+    text-decoration: underline;
+}
+
+.create_account {
+    text-align: center;
+    font-size: 20px;
+    font-family: Arial, Helvetica, sans-serif;
+    color:#FFFFFF;
+    position: fixed;
+    right: 17%;
+    bottom: 15%;
+    font-weight: lighter;
+
+}
+.create_account span{
+    color: #FFFFFF;
+    text-decoration: none;
+    font-weight: lighter;
+    font-family: Arial, Helvetica, sans-serif;
+}
+.create_account a {
+    color: #f9ae42;
+    text-decoration: underline;
+}
+
+.create_account a:hover{
+    text-decoration: underline;
+}

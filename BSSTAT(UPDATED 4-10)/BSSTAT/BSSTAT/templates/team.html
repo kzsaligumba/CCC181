@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CHECKMATE</title>
+
+    <!-- Link to your CSS file -->
+    <link rel="stylesheet" href="static/team.css">
+</head>
+<body>
+    <div class = "team">
+        <button class="cta-button home-button" onclick="location.href='{{ url_for('index') }}'">
+            HOME
+        </button>
+        <button class="cta-button exit-button" onclick="location.href='{{ url_for('exit_app') }}'">
+            EXIT
+        </button>
+    </div>
+    <div class="wrapper_outer">
+        <div class = "wrapper">
+            <div class = "parallax_section">
+                <div class="parallax_bg" style="background-image: url('{{ url_for('static', filename='bg10.png') }}')"></div>
+            </div>
+            <div class = "parallax_section">
+                <div class="parallax_bg" style="background-image: url('{{ url_for('static', filename='bg12.png') }}')"></div>
+            </div>  
+        </div>
+
+</body>

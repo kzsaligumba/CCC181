@@ -1,0 +1,109 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    margin: 0;
+    color: #000;
+}
+
+.wrapper_outer {}
+.wrapper{}
+.parallax_section{
+    min-height: 100vh;
+    padding: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.parallax_bg{
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-size: cover;
+    background-position: center center;
+    z-index: -1;
+    min-height: 100%;
+}
+
+.about{
+
+}
+/* Styling for the buttons */
+.cta-button {
+    width: 270px;
+    height: 60px;
+    font-size: 20px;
+    margin: 10px;
+    cursor: pointer;
+    border: none;
+    border-radius: 25px;
+    transition: background-color 0.3s;
+    z-index: 1;
+}
+.home-button {
+    width: 135px;
+    height: 60px;
+    position: fixed;
+    right: 305px;
+    top: 20px;
+    font-size: 20px;
+    font-weight: 550;
+    margin: 10px;
+    cursor: pointer;
+    border: none;
+    border-radius: 40px;
+    background-color: #8c1111;
+    color: #FFFFFF;
+    transition:#6b0d0d 0.3s;
+}
+
+.home-button:hover {
+    background-color: #b02221;
+}
+.team-button {
+    width: 135px;
+    height: 60px;
+    position: fixed;
+    right: 165px;
+    top: 20px;
+    font-size: 20px;
+    font-weight: 550;
+    margin: 10px;
+    cursor: pointer;
+    border: none;
+    border-radius: 40px;
+    background-color: #8c1111;
+    color: #FFFFFF;
+    transition:#6b0d0d 0.3s;
+}
+
+.team-button:hover {
+    background-color: #b02221;
+}
+
+.exit-button {
+    width: 135px;
+    height: 60px;
+    position: fixed;
+    right: 25px;
+    top: 20px;
+    font-size: 20px;
+    font-weight: 550;
+    margin: 10px;
+    cursor: pointer;
+    border: none;
+    border-radius: 40px;
+    background-color: #8c1111;
+    color: #FFFFFF;
+    transition:#6b0d0d 0.3s;
+}
+
+.exit-button:hover {
+    background-color: #b02221;
+}

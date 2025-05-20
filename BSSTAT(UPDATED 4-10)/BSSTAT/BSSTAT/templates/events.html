@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CHECKMATE</title>
+    <link rel="stylesheet" href="static/events.css">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        function confirmLogout() {
+            var result = confirm("Are you sure you want to quit?");
+            if (result) {
+                window.location.href = "{{ url_for('index') }}";
+            }
+        }
+
+        function clearFields() {
+            // Reset values of input fields
+            $("#eventID, #eventName, #eventDate, #eventLocation, #PStartTime, #PEndTime, #LStartTime, #LEndTime, #PSOStartTime, #PSOEndTime, #LSOStartTime, #LSOEndTime").val('');
+        }
+
+        // Add this function to fetch events and update the table
+        function fetchAndDisplayEvents() {
+            $.ajax({
+                type: "GET",
+                url: "/get_events", // Replace with the actual Flask endpoint
+                success: function(response) {
+                    // Clear existing table rows
+                    $("#eventsTable tbody").empty();
+
+                    // Update table with new data
+                    response.events.forEach(function(event) {
+                        var row = "<tr>" +
+                            "<td>" + event.eventID + "</td>" +
+                            "<td>" + event.eventName + "</td>" +
+                            "<td>" + event.eventDate + "</td>" +
+                            "<td>" + event.eventLocation + "</td>" +
+                            "<td>" + event.PStartTime + "</td>" +
+                            "<td>" + event.PEndTime + "</td>" +
+                            "<td>" + event.LStartTime + "</td>" +
+                            "<td>" + event.LEndTime + "</td>" +
+                            "<td>" + event.PSOStartTime + "</td>" +
+                            "<td>" + event.PSOEndTime + "</td>" +
+                            "<td>" + event.LSOStartTime + "</td>" +
+                            "<td>" + event.LSOEndTime + "</td>" +
+                            "</tr>";
+                        // Prepend the new row to the table
+                        $("#eventsTable tbody").prepend(row);
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error("AJAX Error:", status, error);
+                }
+            });
+        }
+
+        $(document).ready(function() {
+            // Call the function to fetch and display events when the page loads
+            fetchAndDisplayEvents();
+            setInterval(fetchAndDisplayEvents, 60000);
+
+            $(".searchevents-button").click(function() {
+                // Get the search input value
+                var searchTerm = $(".searchevents-input-box input").val().toLowerCase();
+
+                // Filter the table rows based on Event ID or Event Name
+                $("#eventsTable tbody tr").filter(function() {
+                    $(this).toggle(
+                        $(this).children("td:eq(0)").text().toLowerCase().includes(searchTerm) ||
+                        $(this).children("td:eq(1)").text().toLowerCase().includes(searchTerm)
+                    );
+                });
+            });
+        });
+
+        $(document).ready(function() {
+            $(".create-button").click(function() {
+                // Get values from input fields
+                var eventID = $("#eventID").val();
+                var eventName = $("#eventName").val();
+                var eventDate = $("#eventDate").val();
+                var eventLocation = $("#eventLocation").val();
+                var PStartTime = $("#PStartTime").val();
+                var PEndTime = $("#PEndTime").val();
+                var LStartTime = $("#LStartTime").val();
+                var LEndTime = $("#LEndTime").val();
+                var PSOStartTime = $("#PSOStartTime").val();
+                var PSOEndTime = $("#PSOEndTime").val();
+                var LSOStartTime = $("#LSOStartTime").val();
+                var LSOEndTime = $("#LSOEndTime").val();
+
+                // Prepare data to send to the server
+                var eventData = {
+                    "eventID": eventID,
+                    "eventName": eventName,
+                    "eventDate": eventDate,
+                    "eventLocation": eventLocation,
+                    "PStartTime": PStartTime,
+                    "PEndTime": PEndTime,
+                    "LStartTime": LStartTime,
+                    "LEndTime": LEndTime,
+                    "PSOStartTime": PSOStartTime,
+                    "PSOEndTime": PSOEndTime,
+                    "LSOStartTime": LSOStartTime,
+                    "LSOEndTime": LSOEndTime
+                };
+
+                // Send data to the server using AJAX
+                $.ajax({
+                    type: "POST",
+                    url: "/create_event", // Replace with the actual Flask endpoint
+                    contentType: "application/json;charset=UTF-8",
+                    data: JSON.stringify(eventData),
+                    // Inside the success callback of your AJAX request
+                    success: function(response) {
+                        // Handle the server response
+                        console.log(response);
+
+                        if (response.error) {
+                            // Display an error message to the user
+                            alert(response.error);
+                        } else if (response.message === "Event created successfully") {
+                            // Display a success message to the user
+                            alert("Event created successfully");
+                            // Clear input fields
+                            clearFields();
+                            // After successful creation, fetch and display events
+                            fetchAndDisplayEvents();
+                        } else {
+                            // Handle other cases if needed
+                            alert("Error creating event");
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        // Handle AJAX errors
+                        console.error("AJAX Error:", status, error);
+                        alert("Event ID already existed");
+                        clearFields();
+                    }
+                });
+            });
+
+
+            // Move the following block inside the $(document).ready block
+            $(".update-button").click(function() {
+                // Get values from input fields
+                var eventID = $("#eventID").val();
+                var eventName = $("#eventName").val();
+                var eventDate = $("#eventDate").val();
+                var eventLocation = $("#eventLocation").val();
+                var PStartTime = $("#PStartTime").val();
+                var PEndTime = $("#PEndTime").val();
+                var LStartTime = $("#LStartTime").val();
+                var LEndTime = $("#LEndTime").val();
+                var PSOStartTime = $("#PSOStartTime").val();
+                var PSOEndTime = $("#PSOEndTime").val();
+                var LSOStartTime = $("#LSOStartTime").val();
+                var LSOEndTime = $("#LSOEndTime").val();
+
+                // Prepare data to send to the server
+                var eventData = {
+                    "eventID": eventID,
+                    "eventName": eventName,
+                    "eventDate": eventDate,
+                    "eventLocation": eventLocation,
+                    "PStartTime": PStartTime,
+                    "PEndTime": PEndTime,
+                    "LStartTime": LStartTime,
+                    "LEndTime": LEndTime,
+                    "PSOStartTime": PSOStartTime,
+                    "PSOEndTime": PSOEndTime,
+                    "LSOStartTime": LSOStartTime,
+                    "LSOEndTime": LSOEndTime
+                };
+
+                // Send data to the server using AJAX
+                $.ajax({
+                    type: "POST",
+                    url: "/update_event",
+                    contentType: "application/json;charset=UTF-8",
+                    data: JSON.stringify(eventData),
+                    success: function(response) {
+                        // Handle the server response
+                        console.log(response);
+
+                        if (response.error) {
+                            // Display an error message to the user
+                            alert(response.message);
+                        } else if (response.message === "Event updated successfully") {
+                            // Display a success message to the user
+                            alert("Event updated successfully");
+                            // Clear input fields
+                            clearFields();
+                            // After successful update, fetch and display events
+                            fetchAndDisplayEvents();
+                        } else {
+                            // Handle other cases if needed
+                            alert("Event ID does not exist");
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        // Handle AJAX errors
+                        console.error("AJAX Error:", status, error);
+                        alert("Event ID does not exist");
+                        clearFields();
+                    }
+                });
+            });
+
+            $(".delete-button").click(function() {
+                // Get the event ID for deletion
+                var eventID = $("#eventID").val();
+
+                // Check if the event ID exists
+                if (!eventID) {
+                    alert("Please enter Event ID for deletion");
+                    return;
+                }
+
+                // Ask for confirmation before deleting
+                var result = confirm("Are you sure you want to delete this event?");
+                if (!result) {
+                    return; // User clicked Cancel, do not proceed with deletion
+                }
+
+                // Send data to the server using AJAX
+                $.ajax({
+                    type: "POST",
+                    url: "/delete_event", // Replace with the actual Flask endpoint
+                    contentType: "application/json;charset=UTF-8",
+                    data: JSON.stringify({
+                        "eventID": eventID
+                    }),
+                    success: function(response) {
+                        // Handle the server response
+                        console.log(response);
+
+                        if (response.error) {
+                            // Display an error message to the user
+                            alert(response.message);
+                        } else {
+                            // Display a success message to the user
+                            alert(response.message);
+                            // Clear input fields
+                            clearFields();
+                            // After successful deletion, fetch and display events
+                            fetchAndDisplayEvents();
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        // Handle AJAX errors
+                        console.error("AJAX Error:", status, error);
+                        alert("Event ID does not exist");
+                        clearFields();
+                    }
+                });
+            });
+
+            $(".clear-button").click(function() {
+                // Clear input fields
+                clearFields();
+                
+                // Clear search input field
+                $(".searchevents-input-box input").val('');
+                
+                // Show all table rows
+                $("#eventsTable tbody tr").show();
+            });
+
+        });
+
+        $(document).ready(function() {
+            // Call the function to fetch and display events when the page loads
+            fetchAndDisplayEvents();
+            setInterval(fetchAndDisplayEvents, 60000);
+
+            // Click event listener for table rows
+            $("#eventsTable tbody").on("click", "tr", function() {
+                // Get the data from the clicked row
+                var rowData = $(this).children("td").map(function() {
+                    return $(this).text();
+                }).get();
+
+                // Update input fields with row data
+                $("#eventID").val(rowData[0]);
+                $("#eventName").val(rowData[1]);
+                $("#eventDate").val(rowData[2]);
+                $("#eventLocation").val(rowData[3]);
+                $("#PStartTime").val(rowData[4]);
+                $("#PEndTime").val(rowData[5]);
+                $("#LStartTime").val(rowData[6]);
+                $("#LEndTime").val(rowData[7]);
+                $("#PSOStartTime").val(rowData[8]);
+                $("#PSOEndTime").val(rowData[9]);
+                $("#LSOStartTime").val(rowData[10]);
+                $("#LSOEndTime").val(rowData[11]);
+            });
+
+            $(".searchevents-button").click(function() {
+                // Get the search input value
+                var searchTerm = $(".searchevents-input-box input").val().toLowerCase();
+
+                // Filter the table rows based on Event ID or Event Name
+                $("#eventsTable tbody tr").filter(function() {
+                    $(this).toggle(
+                        $(this).children("td:eq(0)").text().toLowerCase().includes(searchTerm) ||
+                        $(this).children("td:eq(1)").text().toLowerCase().includes(searchTerm)
+                    );
+                });
+            });
+
+            $("#PStartTime").change(function() {
+                // Get the value of Present Sign In start time
+                var startTime = $(this).val();
+
+                // Update Late Sign In start time accordingly
+                $("#LStartTime").val(startTime);
+
+                // Update Present Sign Out start time accordingly
+                $("#PSOStartTime").val(startTime);
+
+                // Update Late Sign Out start time accordingly
+                $("#LSOStartTime").val(startTime);
+
+                // Check if the end time is before the start time
+                var endTime = $("#PEndTime").val();
+                if (endTime < startTime) {
+                    alert("The time ranges do not correspond.");
+                }
+            });
+
+            $("#PEndTime").change(function() {
+                // Get the value of Present Sign In end time
+                var endTime = $(this).val();
+
+                // Update Late Sign In end time accordingly
+                $("#LEndTime").val(endTime);
+
+                // Update Present Sign Out end time accordingly
+                $("#PSOEndTime").val(endTime);
+
+                // Update Late Sign Out end time accordingly
+                $("#LSOEndTime").val(endTime);
+
+                // Check if the end time is before the start time
+                var startTime = $("#PStartTime").val();
+                if (endTime < startTime) {
+                    alert("The time ranges do not correspond.");
+                }
+            });
+        });
+    </script>
+    <style>
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border: 2px solid #FFA500;
+            box-shadow: 0 0 5px rgba(255, 165, 0, 0.5);
+        }
+
+        .wrapper {
+            position: relative;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+        <input type="checkbox" id="btn" hidden>
+        <label for="btn" class="menu-btn">
+            <i class="checmate"> <img src="static/cm.png" width="30px" height="30px" alt=""> </i>
+        </label>
+        <nav id="sidebar">
+            <div class="title">CHECKMATE</div>
+            <ul class="list-items">
+                <li><a onclick="location.href='{{ url_for('dashboard') }}'">Dashboard</a></li>
+                <li><a onclick="location.href='{{ url_for('student') }}'">Student</a></li>
+                <li><a onclick="location.href='{{ url_for('courses') }}'">Courses</a></li>
+                <li><a onclick="location.href='{{ url_for('events') }}'">Events</a></li>
+                <li><a onclick="location.href='{{ url_for('attendance') }}'">Attendance</a></li>
+                <li><a onclick="location.href='{{ url_for('membership') }}'">Membership</a></li>
+                <li><a href="#" onclick="confirmLogout()">Logout</a></li>
+            </ul>
+        </nav>
+    </div>
+    <div class="searchevents">
+        <div class="searchevents-input-box">
+            <input type="text" placeholder="Enter by Event ID or Event Name">
+        </div>
+        <button class="cta-button searchevents-button">
+            SEARCH
+        </button>
+        <div class="event_id">
+            <span> Event ID: </span>
+            <div class="event_id-input-box">
+                <input type="text" id="eventID" placeholder="Type here">
+            </div>
+        </div>
+        <div class="event_name">
+            <span> Event Name: </span>
+            <div class="event_name-input-box">
+                <input type="text" id="eventName" placeholder="Type here">
+            </div>
+        </div>
+        <div class="event_date">
+            <span> Date: </span>
+            <div class="date-input-box">
+                <input type="date" id="eventDate" placeholder="Type here">
+            </div>
+        </div>
+
+        <div class="event_location">
+            <span> Location: </span>
+            <div class="location-input-box">
+                <input type="text" id="eventLocation" placeholder="Type here">
+            </div>
+        </div>
+        <div class="presentsignin">
+            <span> Present Sign in: </span>
+            <div class="presentstart-input-box">
+                <input type="time" id="PStartTime">
+            </div>
+            <div class="presentend-input-box">
+                <input type="time" id="PEndTime">
+            </div>
+            <div class="startpresent">
+                <span> START </span>
+            </div>
+            <div class="endpresent">
+                <span> END </span>
+            </div>
+        </div>
+
+        <div class="latesignin">
+            <span> Late Sign in: </span>
+            <div class="latestart-input-box">
+                <input type="time" id="LStartTime">
+            </div>
+            <div class="lateend-input-box">
+                <input type="time" id="LEndTime">
+            </div>
+            <div class="startlate">
+                <span> START </span>
+            </div>
+            <div class="endlate">
+                <span> END </span>
+            </div>
+        </div>
+
+        <div class="presentsignout">
+            <span> Present Sign Out: </span>
+            <div class="signoutpresstart-input-box">
+                <input type="time" id="PSOStartTime">
+            </div>
+            <div class="signoutpresend-input-box">
+                <input type="time" id="PSOEndTime">
+            </div>
+            <div class="startsignoutpres">
+                <span> START </span>
+            </div>
+            <div class="endsignourepres">
+                <span> END </span>
+            </div>
+        </div>
+        <div class="latesignout">
+            <span> Late Sign Out: </span>
+            <div class="signoutlatestart-input-box">
+                <input type="time" id="LSOStartTime">
+            </div>
+            <div class="signoutlateend-input-box">
+                <input type="time" id="LSOEndTime">
+            </div>
+            <div class="startsignoutlate">
+                <span> START </span>
+            </div>
+            <div class="endsignoutlate">
+                <span> END </span>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <button class="cta-button create-button">
+                CREATE
+            </button>
+            <button class="cta-button update-button">
+                UPDATE
+            </button>
+            <button class="cta-button delete-button">
+                DELETE
+            </button>
+            <button class="cta-button clear-button">
+                CLEAR
+            </button>
+        </div>
+        <div class="table-container">
+            <div class="student-table-wrapper">
+                <div class="events-table">
+                    <table id="eventsTable">
+                        <colgroup>
+                            <col span="4" style="width: auto;">
+                            <!-- First four columns -->
+                            <col span="2" style="width: auto;">
+                            <!-- Next two columns for Present Sign In -->
+                            <col span="2" style="width: auto;">
+                            <!-- Next two columns for Late Sign In -->
+                            <col span="2" style="width: auto;">
+                            <!-- Next two columns for Present Sign Out -->
+                            <col span="2" style="width: auto;">
+                            <!-- Next two columns for Late Sign Out -->
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>Event ID</th>
+                                <th>Event Name</th>
+                                <th>Event Date</th>
+                                <th>Event Location</th>
+                                <th colspan="2">Present Sign In</th>
+                                <th colspan="2">Late Sign In</th>
+                                <th colspan="2">Present Sign Out</th>
+                                <th colspan="2">Late Sign Out</th>
+                            </tr>
+                            <!-- Add another header row for "Start" and "End" -->
+                            <tr>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th>Start</th>
+                                <th>End</th>
+                                <th>Start</th>
+                                <th>End</th>
+                                <th>Start</th>
+                                <th>End</th>
+                                <th>Start</th>
+                                <th>End</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Add your table rows here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+</body>
+
+</html>

@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CHECKMATE</title>
+  <link rel="stylesheet" href="static/attendance.css">
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <style>
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+      outline: none;
+      border: 2px solid #FFA500;
+      box-shadow: 0 0 5px rgba(255, 165, 0, 0.5);
+    }
+
+    .wrapper {
+      position: relative;
+    }
+  </style>
+</head>
+<body>
+<div class="wrapper">
+  <input type="checkbox" id="btn" hidden>
+  <label for="btn" class="menu-btn">
+    <i class="checkmate"><img src="static/cm.png" width="30px" height="30px" alt=""></i>
+  </label>
+  <nav id="sidebar">
+    <div class="title">CHECKMATE</div>
+    <ul class="list-items">
+      <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+      <li><a href="{{ url_for('student') }}">Student</a></li>
+      <li><a href="{{ url_for('courses') }}">Courses</a></li>
+      <li><a href="{{ url_for('events') }}">Events</a></li>
+      <li><a href="{{ url_for('attendance') }}">Attendance</a></li>
+      <li><a href="{{ url_for('membership') }}">Membership</a></li>
+      <li><a href="#" onclick="confirmLogout()">Logout</a></li>
+    </ul>
+  </nav>
+</div>
+<div class="searchbar">
+  <div class="searchbar-input-box">
+    <input type="text" placeholder="Type here">
+  </div>
+  <button class="cta-button searchbar-button" onclick="searchAttendance()">
+    SEARCH
+  </button>
+  <button class="cta-button clear-button" onclick="clearSearch()">
+    CLEAR
+  </button>
+  <button class="cta-button remove-button" onclick="deleteAttendance(document.getElementById('studentIdInput').value, document.getElementById('eventIdInput').value)">
+    DELETE
+  </button>
+  <div class="export-options">
+    <label for="selectedEventId">Select Event ID:</label>
+    <div class="export-options-input-box">
+      <input type="text" id="selectedEventId" placeholder="Enter Event ID">
+    </div>
+    <button class="cta-button export-button" onclick="exportSelectedEventAttendance()">
+      EXPORT
+    </button>
+  </div>
+  
+
+<div class="student_id">
+  <span> Student ID: </span>
+  <div class="student_id-input-box">
+    <input type="text" id="studentIdInput" name="studentId" placeholder="Type here">
+  </div>
+</div>
+<div class="event_id">
+  <span> Event ID: </span>
+  <div class="event_id-input-box">
+    <input type="text" id="eventIdInput" name="eventId" placeholder="Type here">
+    <button class="cta-button signin-button" onclick="signIn()">SIGN IN</button>
+    <button class="cta-button signout-button" onclick="signOut()">SIGN OUT</button>
+  </div>
+</div>
+<div class="table-container">
+  <div class="attendance-table-wrapper">
+    <div class="attendance-table">
+      <table id="attendanceTable">
+        <thead>
+        <tr>
+          <th>Student ID</th>
+          <th>First Name</th>
+          <th>Middle Initial</th>
+          <th>Surname</th>
+          <th>Course ID</th>
+          <th>Year Level</th>
+          <th>Event ID</th>
+          <th>Event Date</th>
+          <th>Sign in Time</th>
+          <th>Sign in Status</th>
+          <th>Sign out Time</th>
+          <th>Sign out Status</th>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<script>
+  function confirmLogout() {
+    var result = confirm("Are you sure you want to quit?");
+    if (result) {
+      window.location.href = "{{ url_for('index') }}";
+    }
+  }
+
+  function fetchAndDisplayAttendance() {
+      // Make an AJAX request to fetch the attendance data
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', '/get_attendance_data', true);
+      xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4) {
+              if (xhr.status === 200) {
+                  // Parse the JSON response
+                  var response = JSON.parse(xhr.responseText);
+
+                  // Clear existing table rows
+                  var tbody = document.getElementById("attendanceTable").getElementsByTagName('tbody')[0];
+                  tbody.innerHTML = "";
+
+                  // Update table with new data
+                  response.attendance_data.forEach(function (attendance_record) {
+                      var row = "<tr>" +
+                          "<td>" + attendance_record.student_id + "</td>" +
+                          "<td>" + attendance_record.student_name + "</td>" +
+                          "<td>" + attendance_record.student_mid + "</td>" +
+                          "<td>" + attendance_record.student_last + "</td>" +
+                          "<td>" + attendance_record.course_id + "</td>" +
+                          "<td>" + attendance_record.year_level + "</td>" +
+                          "<td>" + attendance_record.event_id + "</td>" +
+                          "<td>" + attendance_record.event_date + "</td>" +
+                          "<td>" + attendance_record.signin_time + "</td>" +
+                          "<td>" + attendance_record.signin_status + "</td>" +
+                          "<td>" + attendance_record.signout_time + "</td>" +
+                          "<td>" + attendance_record.signout_status + "</td>" +
+                          "</tr>";
+                      // Prepend new row to the table body
+                      tbody.innerHTML = row + tbody.innerHTML;
+                  });
+              } else {
+                  console.error("Failed to fetch attendance data: " + xhr.statusText);
+              }
+          }
+      };
+      xhr.send();
+  }
+
+
+  function searchAttendance() {
+    // Get the search input value
+    var searchTerm = $(".searchbar-input-box input").val().toLowerCase();
+
+    // Filter the table rows based on Student ID or Event ID
+    $("#attendanceTable tbody tr").filter(function () {
+      $(this).toggle(
+        $(this).children("td:eq(0)").text().toLowerCase().includes(searchTerm) || // Student ID
+        $(this).children("td:eq(6)").text().toLowerCase().includes(searchTerm)    // Event ID
+      );
+    });
+  }
+
+  function clearSearch() {
+      // Clear search input
+      $(".searchbar-input-box input").val('');
+
+      // Clear event ID input
+      $("#selectedEventId").val('');
+
+      // Clear student ID input
+      $("#studentIdInput").val('');
+
+      // Clear event ID input
+      $("#eventIdInput").val('');
+
+      // Call the search function to show all rows after clearing
+      searchAttendance();
+  }
+
+
+
+  function deleteAttendance(studentId, eventId) {
+    // Display confirmation dialog
+    var confirmDelete = confirm("Are you sure you want to delete this record?");
+
+    // If user confirms deletion
+    if (confirmDelete) {
+      // Make an AJAX request to delete the record
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', '/delete_attendance', true);
+      xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+          if (xhr.status === 200) {
+            // Refresh attendance data after successful deletion
+            fetchAndDisplayAttendance();
+            alert("Attendance record deleted successfully");
+          } else {
+            alert("Failed to delete attendance record.");
+          }
+        }
+      };
+      xhr.send('studentId=' + encodeURIComponent(studentId) + '&eventId=' + encodeURIComponent(eventId));
+    }
+  }
+
+  function exportData() {
+    var selectedEventId = document.getElementById("eventIdInput").value;
+    var table = document.getElementById("attendanceTable");
+    var rows = table.querySelectorAll("tbody tr");
+
+    var csvContent = "data:text/csv;charset=utf-8,";
+
+    // Add header row
+    var headerRow = Array.from(table.querySelectorAll("thead th")).map(function (th) {
+      return th.textContent;
+    });
+    csvContent += headerRow.join(",") + "\n";
+
+    // Add data rows for the selected event ID
+    rows.forEach(function (row) {
+      var rowData = Array.from(row.children).map(function (td) {
+        return td.textContent;
+      });
+      if (rowData[6] === selectedEventId) { // Check if the event ID matches the selected one
+        csvContent += rowData.join(",") + "\n";
+      }
+    });
+
+    // Create a data URI and trigger a download
+    var encodedUri = encodeURI(csvContent);
+    var link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "attendance_data.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  function signIn() {
+    // Fetch student_id and event_id from the input fields
+    var studentIdInput = document.getElementById('studentIdInput');
+    var eventIdInput = document.getElementById('eventIdInput');
+
+    var studentId = studentIdInput.value;
+    var eventId = eventIdInput.value;
+
+    // Get the current timestamp
+    var currentTimestamp = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
+
+    // Make an AJAX request to the Flask route
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/sign_in', true);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4) {
+        if (xhr.status === 200) {
+          alert(xhr.responseText);
+          // Reset input fields on success
+          studentIdInput.value = '';
+          eventIdInput.value = '';
+          // Update attendance data after successful sign-in
+          fetchAndDisplayAttendance();
+        } else {
+          alert("Error: " + xhr.statusText);
+        }
+      }
+    };
+    xhr.send('studentId=' + encodeURIComponent(studentId) + '&eventId=' + encodeURIComponent(eventId) + '&currentTimestamp=' + encodeURIComponent(currentTimestamp));
+  }
+
+  function signOut() {
+    // Fetch student_id and event_id from the input fields
+    var studentIdInput = document.getElementById('studentIdInput');
+    var eventIdInput = document.getElementById('eventIdInput');
+
+    var studentId = studentIdInput.value;
+    var eventId = eventIdInput.value;
+
+    // Check if both student_id and event_id are provided
+    if (studentId && eventId) {
+      // Get the current timestamp
+      var currentTimestamp = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
+
+      // Make an AJAX request to the Flask route for sign-out
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', '/sign_out', true);
+      xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+          if (xhr.status === 200) {
+            alert(xhr.responseText);
+            // Reset input fields on success
+            studentIdInput.value = '';
+            eventIdInput.value = '';
+            // Update attendance data after successful sign-out
+            fetchAndDisplayAttendance();
+          } else {
+            alert("Error: " + xhr.statusText);
+          }
+        }
+      };
+      xhr.send('studentId=' + encodeURIComponent(studentId) + '&eventId=' + encodeURIComponent(eventId) + '&currentTimestamp=' + encodeURIComponent(currentTimestamp));
+    }
+  }
+
+    // Function to populate the event ID dropdown menu
+  function populateEventIdDropdown() {
+      var table = document.getElementById("attendanceTable");
+      var rows = table.querySelectorAll("tbody tr");
+
+      var eventIds = new Set();
+
+      // Get all unique event IDs from the table
+      rows.forEach(function (row) {
+          eventIds.add(row.cells[6].textContent.trim()); // Adjusted to correctly access the Event ID cell
+      });
+
+      var select = document.getElementById("selectedEventId");
+
+      // Clear existing options
+      select.innerHTML = "";
+
+      // Add default option
+      var defaultOption = document.createElement("option");
+      defaultOption.text = "Select Event ID";
+      select.add(defaultOption);
+
+      // Add options for each event ID
+      eventIds.forEach(function (eventId) {
+          var option = document.createElement("option");
+          option.text = eventId;
+          select.add(option);
+      });
+  }
+
+  // Call the function to populate the event ID dropdown menu when the page loads
+  $(document).ready(function () {
+      populateEventIdDropdown();
+  });
+
+    // Modified function to export data for the manually input event ID
+  function exportSelectedEventAttendance() {
+      var selectedEventId = document.getElementById("selectedEventId").value.trim();
+
+      if (!selectedEventId) {
+          alert("Please enter an event ID.");
+          return;
+      }
+
+      var table = document.getElementById("attendanceTable");
+      var rows = table.querySelectorAll("tbody tr");
+
+      var csvContent = "data:text/csv;charset=utf-8,";
+
+      // Add header row
+      var headerRow = Array.from(table.querySelectorAll("thead th")).map(function (th) {
+          return th.textContent;
+      });
+      csvContent += headerRow.join(",") + "\n";
+
+      // Add data rows for the selected event ID
+      rows.forEach(function (row) {
+          var rowData = Array.from(row.children).map(function (td) {
+              return td.textContent;
+          });
+          if (rowData[6] === selectedEventId) { // Check if the event ID matches the selected one
+              csvContent += rowData.join(",") + "\n";
+          }
+      });
+
+      // Create a data URI and trigger a download
+      var encodedUri = encodeURI(csvContent);
+      var link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "attendance_data.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+  }
+
+  // Function to update attendance status when an event is modified
+  function updateAttendanceStatus(eventId, newStatus) {
+      // Find rows corresponding to the event ID in the attendance table
+      var rows = $("#attendanceTable tbody tr").filter(function () {
+          return $(this).children("td:eq(6)").text().trim() === eventId;
+      });
+
+      // Update the status column(s) in the identified rows
+      rows.each(function () {
+          // Update status column(s) based on newStatus
+          $(this).find("td:eq(<status_column_index>)").text(newStatus);
+      });
+  }
+
+  // Function to handle event updates
+  function handleEventUpdate(eventId, newStatus) {
+      // Make an AJAX request to fetch the updated event status
+      $.ajax({
+          url: '/update_event_status', // Update the URL to your endpoint for updating event status
+          type: 'POST',
+          data: { eventId: eventId, status: newStatus },
+          success: function (response) {
+              // Update attendance status with the new status
+              updateAttendanceStatus(eventId, newStatus);
+          },
+          error: function (xhr, status, error) {
+              console.error("Failed to update event status:", error);
+          }
+      });
+  }
+
+
+
+  // Call the function to fetch and display attendance when the page loads
+  $(document).ready(function () {
+    fetchAndDisplayAttendance();
+    // You can use setInterval to periodically update the data (every 60 seconds in this case)
+    setInterval(fetchAndDisplayAttendance, 60000);
+
+    // Add click event listener to table rows
+    $("#attendanceTable tbody").on("click", "tr", function () {
+      // Get the data from the clicked row
+      var rowData = $(this).children("td").map(function () {
+        return $(this).text();
+      }).get();
+
+      // Populate the input boxes with the data
+      $("#studentIdInput").val(rowData[0]);
+      $("#eventIdInput").val(rowData[6]);
+    });
+  });
+</script>
+</body>
+</html>
